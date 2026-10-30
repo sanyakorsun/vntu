@@ -1,0 +1,44 @@
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #eeeeee;
+}
+
+#game {
+    width: 400px;
+    height: 500px;
+    background-color: #222222;
+    margin: 20px auto;
+    position: relative;
+    overflow: hidden;
+}
+
+#player {
+    width: 40px;
+    height: 40px;
+    background-color: blue;
+    position: absolute;
+    bottom: 10px;
+    left: 180px;
+}
+
+.block {
+    width: 40px;
+    height: 40px;
+    background-color: red;
+    position: absolute;
+    top: 0;
+}
+
+button {
+    padding: 10px 25px;
+    background-color: #222222;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #444444;
+}

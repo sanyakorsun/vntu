@@ -1,4 +1,3 @@
-
 name: Deploy websites
 
 on:
@@ -34,7 +33,7 @@ jobs:
       - name: Upload websites
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'first_year/web'
+          path: '.'
 
       - name: Deploy
         id: deployment

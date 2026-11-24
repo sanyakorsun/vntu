@@ -236,7 +236,7 @@
       /* Cards & Grids */
       .grid-2 {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        grid-template-columns: repeat(2, 1fr);
         gap: 18px;
         margin: 18px 0;
       }
@@ -253,6 +253,10 @@
         grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
         gap: 16px;
         margin: 18px 0;
+      }
+
+      .grid-4 .card {
+        padding: 18px;
       }
 
       .card {
@@ -561,6 +565,9 @@
       }
 
       @media (max-width: 640px) {
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
         .nav-container {
           height: auto;
           flex-direction: column;
@@ -805,7 +812,7 @@
         </div>
 
         <h2>4 кроки від запиту до відповіді</h2>
-        <div class="grid-2">
+        <div class="grid-4">
           <div class="card card-accent">
             <div class="step-num">1</div>
             <h3>Токенізація (Tokenization)</h3>
@@ -1138,8 +1145,13 @@
       <!-- PAGE 5: SOURCES -->
       <section id="page-sources" class="page">
         <div class="hero">
-          <span class="tag">Джерела та ресурси</span>
+          <span class="tag">Бібліографія та ресурси</span>
           <h1>Джерела <span>інформації</span></h1>
+          <p class="subtitle">
+            Оригінальні наукові публікації, технічна документація розробників та
+            відкриті освітні курси, використані під час підготовки матеріалів
+            сайту.
+          </p>
         </div>
 
         <div class="grid-2">
@@ -1265,7 +1277,7 @@
     <!-- Footer with Author -->
     <footer>
       <div class="footer-container">
-        <div>LLM - великі мовні моделі</div>
+        <div>Освітній веб-ресурс про великі мовні моделі (LLM)</div>
         <div class="author-badge">
           Автор: <strong>Корсун Олександр</strong> <span>3КН-26б</span>
         </div>

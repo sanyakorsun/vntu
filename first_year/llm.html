@@ -1,0 +1,1298 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LLM — Великі мовні моделі</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-primary: #09090b;
+        --bg-secondary: #141417;
+        --bg-tertiary: #1c1c21;
+        --border: #27272a;
+        --border-hover: #3f3f46;
+        --text-primary: #fafafa;
+        --text-secondary: #a1a1aa;
+        --text-muted: #71717a;
+        --accent: #f97316;
+        --accent-hover: #fb923c;
+        --accent-dim: rgba(249, 115, 22, 0.12);
+        --accent-border: rgba(249, 115, 22, 0.35);
+        --danger: #ef4444;
+        --success: #22c55e;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          sans-serif;
+        line-height: 1.65;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      code,
+      .mono {
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      /* Header & Navigation */
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: rgba(9, 9, 11, 0.88);
+        backdrop-filter: blur(12px);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-container {
+        max-width: 1040px;
+        margin: 0 auto;
+        padding: 0 20px;
+        height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+      }
+
+      .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--text-primary);
+        text-decoration: none;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .logo-badge {
+        background: var(--accent);
+        color: #09090b;
+        font-size: 0.78rem;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        letter-spacing: 0.04em;
+      }
+
+      nav {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        overflow-x: auto;
+        scrollbar-width: none;
+      }
+
+      nav::-webkit-scrollbar {
+        display: none;
+      }
+
+      .nav-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-secondary);
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 500;
+        padding: 7px 13px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+      }
+
+      .nav-btn:hover {
+        color: var(--text-primary);
+        background: var(--bg-secondary);
+      }
+
+      .nav-btn.active {
+        color: var(--accent);
+        background: var(--accent-dim);
+        border-color: var(--accent-border);
+      }
+
+      /* Main Layout */
+      main {
+        flex: 1;
+        max-width: 1040px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 40px 20px 64px;
+      }
+
+      .page {
+        display: none;
+        animation: fadeIn 0.28s ease;
+      }
+
+      .page.active {
+        display: block;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Typography & Section Headings */
+      .hero {
+        padding: 24px 0 36px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 36px;
+      }
+
+      .tag {
+        display: inline-block;
+        font-size: 0.78rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--accent);
+        background: var(--accent-dim);
+        border: 1px solid var(--accent-border);
+        padding: 4px 10px;
+        border-radius: 999px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: clamp(1.9rem, 4vw, 2.75rem);
+        font-weight: 700;
+        line-height: 1.2;
+        letter-spacing: -0.02em;
+        margin-bottom: 14px;
+      }
+
+      h1 span {
+        color: var(--accent);
+      }
+
+      .subtitle {
+        font-size: 1.08rem;
+        color: var(--text-secondary);
+        max-width: 740px;
+      }
+
+      h2 {
+        font-size: 1.45rem;
+        font-weight: 600;
+        margin: 36px 0 16px;
+        letter-spacing: -0.01em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      h2::before {
+        content: "";
+        display: inline-block;
+        width: 4px;
+        height: 20px;
+        background: var(--accent);
+        border-radius: 2px;
+      }
+
+      h3 {
+        font-size: 1.08rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        color: var(--text-primary);
+      }
+
+      p {
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+      }
+
+      /* Cards & Grids */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 18px;
+        margin: 18px 0;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 18px;
+        margin: 18px 0;
+      }
+
+      .grid-4 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        gap: 16px;
+        margin: 18px 0;
+      }
+
+      .card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 22px;
+        transition: border-color 0.2s ease;
+      }
+
+      .card:hover {
+        border-color: var(--border-hover);
+      }
+
+      .card-accent {
+        border-left: 3px solid var(--accent);
+      }
+
+      .stat-value {
+        font-size: 1.65rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 4px;
+      }
+
+      .stat-label {
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+      }
+
+      .step-num {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: var(--accent-dim);
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        border: 1px solid var(--accent-border);
+      }
+
+      /* Analogy Box */
+      .callout {
+        background: var(--bg-secondary);
+        border: 1px solid var(--accent-border);
+        border-radius: 12px;
+        padding: 20px 24px;
+        margin: 22px 0;
+      }
+
+      .callout-title {
+        color: var(--accent);
+        font-weight: 600;
+        margin-bottom: 6px;
+        font-size: 0.98rem;
+      }
+
+      /* Tables */
+      .table-wrap {
+        overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        margin: 18px 0;
+        background: var(--bg-secondary);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+        font-size: 0.92rem;
+      }
+
+      th,
+      td {
+        padding: 14px 16px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      th {
+        background: var(--bg-tertiary);
+        color: var(--text-primary);
+        font-weight: 600;
+      }
+
+      td {
+        color: var(--text-secondary);
+      }
+
+      tr:last-child td {
+        border-bottom: none;
+      }
+
+      .badge-pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 6px;
+        font-size: 0.78rem;
+        font-weight: 500;
+        background: var(--bg-tertiary);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+      }
+
+      .badge-orange {
+        background: var(--accent-dim);
+        border-color: var(--accent-border);
+        color: var(--accent);
+      }
+
+      /* Myths vs Reality */
+      .myth-card {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .myth-bad {
+        color: #f87171;
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-bottom: 6px;
+      }
+
+      .myth-good {
+        color: #4ade80;
+        font-size: 0.88rem;
+        font-weight: 600;
+        margin-top: 10px;
+        margin-bottom: 4px;
+      }
+
+      /* Timeline */
+      .timeline {
+        position: relative;
+        padding-left: 26px;
+        margin: 24px 0;
+        border-left: 2px solid var(--border);
+      }
+
+      .timeline-item {
+        position: relative;
+        margin-bottom: 26px;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -33px;
+        top: 24px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent);
+        border: 3px solid var(--bg-primary);
+      }
+
+      .timeline-year {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--accent);
+        margin-bottom: 4px;
+      }
+
+      /* Glossary & Lists */
+      ul.clean-list {
+        list-style: none;
+        margin: 12px 0;
+      }
+
+      ul.clean-list li {
+        position: relative;
+        padding-left: 18px;
+        color: var(--text-secondary);
+        margin-bottom: 10px;
+      }
+
+      ul.clean-list li::before {
+        content: "▸";
+        position: absolute;
+        left: 0;
+        color: var(--accent);
+      }
+
+      /* Sources */
+      .source-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 20px;
+        text-decoration: none;
+        transition: all 0.2s ease;
+      }
+
+      .source-card:hover {
+        border-color: var(--accent);
+        transform: translateY(-2px);
+      }
+
+      .source-type {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--accent);
+        margin-bottom: 6px;
+      }
+
+      .source-link {
+        margin-top: 12px;
+        font-size: 0.85rem;
+        color: var(--accent);
+        font-weight: 500;
+      }
+
+      /* Page Footer Navigation */
+      .page-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: 1px solid var(--border);
+        gap: 12px;
+      }
+
+      .btn-nav {
+        background: var(--bg-secondary);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+
+      .btn-nav:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .btn-nav.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #09090b;
+        font-weight: 600;
+      }
+
+      .btn-nav.primary:hover {
+        background: var(--accent-hover);
+        color: #09090b;
+      }
+
+      /* Site Footer */
+      footer {
+        border-top: 1px solid var(--border);
+        background: var(--bg-secondary);
+        padding: 22px 20px;
+        margin-top: auto;
+      }
+
+      .footer-container {
+        max-width: 1040px;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.88rem;
+        color: var(--text-secondary);
+      }
+
+      .author-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--bg-primary);
+        border: 1px solid var(--border);
+        padding: 6px 12px;
+        border-radius: 8px;
+        color: var(--text-primary);
+        font-weight: 500;
+      }
+
+      .author-badge span {
+        color: var(--accent);
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+      }
+
+      @media (max-width: 640px) {
+        .nav-container {
+          height: auto;
+          flex-direction: column;
+          align-items: flex-start;
+          padding: 12px 16px;
+        }
+        nav {
+          width: 100%;
+          padding-bottom: 4px;
+        }
+        .footer-container {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="nav-container">
+        <div class="logo" onclick="navigateTo('overview')">
+          <span class="logo-badge">LLM</span>
+          <span>Великі мовні моделі</span>
+        </div>
+        <nav id="main-nav">
+          <button
+            class="nav-btn active"
+            data-page="overview"
+            onclick="navigateTo('overview')"
+          >
+            Що таке LLM
+          </button>
+          <button
+            class="nav-btn"
+            data-page="mechanics"
+            onclick="navigateTo('mechanics')"
+          >
+            Як це працює
+          </button>
+          <button
+            class="nav-btn"
+            data-page="history"
+            onclick="navigateTo('history')"
+          >
+            Історія
+          </button>
+          <button
+            class="nav-btn"
+            data-page="usage"
+            onclick="navigateTo('usage')"
+          >
+            Застосування
+          </button>
+          <button
+            class="nav-btn"
+            data-page="sources"
+            onclick="navigateTo('sources')"
+          >
+            Джерела
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+      <!-- PAGE 1: OVERVIEW -->
+      <section id="page-overview" class="page active">
+        <div class="hero">
+          <span class="tag">Огляд технології</span>
+          <h1>Що таке <span>LLM</span> і чому про них говорять усі</h1>
+          <p class="subtitle">
+            Large Language Model (Велика мовна модель) — це нейромережа, навчена
+            на величезних обсягах тексту, яка здатна розуміти запити, генерувати
+            зв'язні відповіді, писати програмний код, перекладати та аналізувати
+            інформацію.
+          </p>
+        </div>
+
+        <div class="callout">
+          <div class="callout-title">Проста аналогія: Т9 на максималках</div>
+          <p style="margin-bottom: 0">
+            Уявіть систему автодоповнення тексту у вашому смартфоні, яка
+            прочитала майже весь відкритий інтернет, мільйони книг, наукових
+            статей та репозиторіїв із кодом. Замість того щоб просто підказувати
+            наступне слово у повідомленні, модель вловлює стиль, логіку,
+            контекст і будує цілі абзаци, програми чи аналітичні звіти слово за
+            словом.
+          </p>
+        </div>
+
+        <h2>Ключові характеристики сучасних моделей</h2>
+        <div class="grid-4">
+          <div class="card">
+            <div class="stat-value">10⁹ – 10¹²</div>
+            <div class="stat-label">
+              Параметрів (ваг) усередині нейромережі, що зберігають мовні
+              закономірності
+            </div>
+          </div>
+          <div class="card">
+            <div class="stat-value">15+ трлн</div>
+            <div class="stat-label">
+              Токенів тексту використовується під час попереднього навчання
+            </div>
+          </div>
+          <div class="card">
+            <div class="stat-value">128K – 2M</div>
+            <div class="stat-label">
+              Токенів контекстного вікна (еквівалент кількох товстих книг за
+              раз)
+            </div>
+          </div>
+          <div class="card">
+            <div class="stat-value">100+ мов</div>
+            <div class="stat-label">
+              Підтримка природних мов та десятків мов програмування
+            </div>
+          </div>
+        </div>
+
+        <h2>Найвідоміші сімейства LLM</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Модель</th>
+                <th>Розробник</th>
+                <th>Тип доступу</th>
+                <th>Головні особливості</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>GPT-4o / o3</strong></td>
+                <td>OpenAI</td>
+                <td><span class="badge-pill">Закрита (API / Chat)</span></td>
+                <td>
+                  Висока універсальність, сильне логічне міркування та
+                  мультимодальність
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Claude 3.5 / 3.7 Sonnet</strong></td>
+                <td>Anthropic</td>
+                <td><span class="badge-pill">Закрита (API / Chat)</span></td>
+                <td>
+                  Лідер у написанні чистого коду, роботі з великими документами
+                  та природному стилі
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Gemini 2.0 / 2.5</strong></td>
+                <td>Google DeepMind</td>
+                <td><span class="badge-pill">Закрита (API / Chat)</span></td>
+                <td>
+                  Надвелике контекстне вікно (до 2 млн токенів) та глибока
+                  інтеграція з екосистемою
+                </td>
+              </tr>
+              <tr>
+                <td><strong>Llama 3 / 4</strong></td>
+                <td>Meta AI</td>
+                <td>
+                  <span class="badge-pill badge-orange">Open Weights</span>
+                </td>
+                <td>
+                  Відкриті ваги — можна завантажити та запускати локально на
+                  власних серверах
+                </td>
+              </tr>
+              <tr>
+                <td><strong>DeepSeek R1 / V3</strong></td>
+                <td>DeepSeek</td>
+                <td>
+                  <span class="badge-pill badge-orange">Open Weights</span>
+                </td>
+                <td>
+                  Висока ефективність навчання (MoE) та потужні здібності до
+                  математичних доведень
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h2>Поширені міфи vs Реальність</h2>
+        <div class="grid-2">
+          <div class="myth-card">
+            <div class="myth-bad">
+              ✕ Міф: LLM має базу даних і просто шукає там відповідь
+            </div>
+            <p>
+              Багато хто думає, що всередині ChatGPT лежить гігантська таблиця з
+              готовими відповідями на всі запитання.
+            </p>
+            <div class="myth-good">
+              ✓ Реальність: Модель генерує текст з нуля
+            </div>
+            <p style="margin-bottom: 0">
+              Модель не зберігає копії статей. Під час навчання вона стискає
+              статистичні зв'язки між словами у числові ваги і щоразу синтезує
+              відповідь по одному токену.
+            </p>
+          </div>
+          <div class="myth-card">
+            <div class="myth-bad">
+              ✕ Міф: Нейромережа «розуміє» текст і мислить як людина
+            </div>
+            <p>
+              Через впевнений тон відповідей здається, що модель має свідомість
+              або власні переконання.
+            </p>
+            <div class="myth-good">
+              ✓ Реальність: Це складна математична апроксимація
+            </div>
+            <p style="margin-bottom: 0">
+              LLM оперує векторами та ймовірностями у багатовимірному просторі.
+              Вона не має власного досвіду чи інтуїції — лише обчислення.
+            </p>
+          </div>
+        </div>
+
+        <div class="page-nav">
+          <div></div>
+          <button class="btn-nav primary" onclick="navigateTo('mechanics')">
+            Далі: Як це працює →
+          </button>
+        </div>
+      </section>
+
+      <!-- PAGE 2: HOW IT WORKS -->
+      <section id="page-mechanics" class="page">
+        <div class="hero">
+          <span class="tag">Внутрішня будова</span>
+          <h1>Як <span>LLM</span> обробляє текст та навчається</h1>
+          <p class="subtitle">
+            Від моменту, коли ви натискаєте Enter, до появи першого слова
+            відповіді проходять чотири чіткі математичні етапи.
+          </p>
+        </div>
+
+        <h2>4 кроки від запиту до відповіді</h2>
+        <div class="grid-2">
+          <div class="card card-accent">
+            <div class="step-num">1</div>
+            <h3>Токенізація (Tokenization)</h3>
+            <p style="margin-bottom: 0">
+              Нейромережа не вміє читати літери — вона працює лише з числами.
+              Вхідний текст розбивається на шматочки —
+              <strong>токени</strong> (цілі слова, корені або окремі символи).
+              Наприклад, слово <code>програмування</code> може поділитися на
+              <code>програм</code> + <code>ування</code>, де кожен фрагмент має
+              свій числовий ID у словнику моделі.
+            </p>
+          </div>
+          <div class="card card-accent">
+            <div class="step-num">2</div>
+            <h3>Ембедінги (Embeddings)</h3>
+            <p style="margin-bottom: 0">
+              Кожен числовий ID перетворюється на вектор — список із тисяч чисел
+              (координат у багатовимірному просторі). Слова зі схожим значенням
+              розташовуються поруч: вектор «кіт» буде набагато ближчим до
+              вектора «собака», ніж до вектора «екскаватор».
+            </p>
+          </div>
+          <div class="card card-accent">
+            <div class="step-num">3</div>
+            <h3>Механізм уваги (Self-Attention)</h3>
+            <p style="margin-bottom: 0">
+              Серце архітектури <strong>Transformer</strong>. Модель аналізує
+              всі слова речення одночасно та визначає, які з них найсильніше
+              пов'язані між собою. У реченні
+              <em>«Замок був зачинений, бо ключ загубився»</em> увага допомагає
+              зрозуміти, що йдеться про дверний замóк, а не про фортецю.
+            </p>
+          </div>
+          <div class="card card-accent">
+            <div class="step-num">4</div>
+            <h3>Передбачення наступного токена</h3>
+            <p style="margin-bottom: 0">
+              Пройшовши через десятки шарів нейромережі, модель обчислює
+              ймовірності для всіх слів зі свого словника (наприклад:
+              <em>«добре» — 64%, «чудово» — 21%, «погано» — 4%</em>). Обирається
+              один токен, додається до тексту, і весь цикл повторюється знову.
+            </p>
+          </div>
+        </div>
+
+        <h2>Три етапи створення мовної моделі</h2>
+        <div class="grid-3">
+          <div class="card">
+            <span class="badge-pill badge-orange" style="margin-bottom: 10px"
+              >Етап 1</span
+            >
+            <h3>Pre-training (Базове навчання)</h3>
+            <p style="margin-bottom: 0">
+              Найдорожчий етап, що триває місяцями на тисячах GPU. Модель читає
+              терабайти текстів і вчиться просто продовжувати речення. На цьому
+              етапі вона накопичує знання про світ, граматику та факти, але ще
+              не вміє вести діалог.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge-pill badge-orange" style="margin-bottom: 10px"
+              >Етап 2</span
+            >
+            <h3>SFT (Supervised Fine-Tuning)</h3>
+            <p style="margin-bottom: 0">
+              Довчання на прикладах «запитання — ідеальна відповідь», складених
+              людьми. Модель вчиться формату асистента: відповідати по суті,
+              структурувати списки, писати код за інструкцією, а не просто
+              дописувати текст як статтю.
+            </p>
+          </div>
+          <div class="card">
+            <span class="badge-pill badge-orange" style="margin-bottom: 10px"
+              >Етап 3</span
+            >
+            <h3>RLHF (Вирівнювання)</h3>
+            <p style="margin-bottom: 0">
+              Навчання з підкріпленням на основі відгуків людей. Оцінювачі
+              порівнюють кілька варіантів відповідей моделі та позначають
+              кращий. Це робить модель корисною, безпечною та ввічливою.
+            </p>
+          </div>
+        </div>
+
+        <h2>Міні-словник ключових термінів</h2>
+        <div class="card">
+          <ul class="clean-list" style="margin: 0">
+            <li>
+              <strong>Контекстне вікно (Context Window):</strong> максимальний
+              обсяг тексту (запит + історія діалогу + відповідь), який модель
+              здатна утримувати в «оперативній пам'яті» одночасно.
+            </li>
+            <li>
+              <strong>Температура (Temperature):</strong> параметр креативності
+              від 0 до 2. При <code>0.0</code> модель завжди обирає найбільш
+              очевидне слово (добре для коду та фактів), при <code>1.0+</code> —
+              частіше ризикує (добре для ідей та текстів).
+            </li>
+            <li>
+              <strong>Промпт (Prompt):</strong> текстова інструкція або запит
+              користувача, який задає роль, контекст і формат очікуваної
+              відповіді.
+            </li>
+            <li>
+              <strong>RAG (Retrieval-Augmented Generation):</strong> техніка,
+              коли перед відповіддю модель спершу шукає свіжі дані у базі знань
+              чи інтернеті, а вже потім формулює відповідь на їх основі.
+            </li>
+          </ul>
+        </div>
+
+        <div class="page-nav">
+          <button class="btn-nav" onclick="navigateTo('overview')">
+            ← Назад: Що таке LLM
+          </button>
+          <button class="btn-nav primary" onclick="navigateTo('history')">
+            Далі: Історія розвитку →
+          </button>
+        </div>
+      </section>
+
+      <!-- PAGE 3: HISTORY -->
+      <section id="page-history" class="page">
+        <div class="hero">
+          <span class="tag">Хронологія проривів</span>
+          <h1>Як ми дійшли до сучасних <span>LLM</span></h1>
+          <p class="subtitle">
+            Шлях від першої наукової статті про трансформери до моделей, здатних
+            розв'язувати олімпіадні задачі та писати повноцінні застосунки.
+          </p>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-year">2017 — Поворотний момент</div>
+            <h3>Стаття «Attention Is All You Need»</h3>
+            <p style="margin-bottom: 0">
+              Восьмеро дослідників Google представили архітектуру
+              <strong>Transformer</strong>. До цього нейромережі (RNN, LSTM)
+              читали текст послідовно — слово за словом, через що повільно
+              навчалися і «забували» початок довгих абзаців. Трансформери
+              дозволили обробляти весь текст паралельно і масштабувати моделі до
+              небачених розмірів.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-year">2018–2019 — Перші GPT та BERT</div>
+            <h3>Народження генеративних та двонаправлених моделей</h3>
+            <p style="margin-bottom: 0">
+              Google випускає <strong>BERT</strong>, який кардинально покращив
+              якість пошуку. Паралельно OpenAI представляє
+              <strong>GPT-1</strong> (117 млн параметрів) та
+              <strong>GPT-2</strong> (1.5 млрд параметрів), яка вже вміла писати
+              досить зв'язні новини та оповідання.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-year">2020 — Ефект масштабу</div>
+            <h3>Вихід GPT-3 (175 мільярдів параметрів)</h3>
+            <p style="margin-bottom: 0">
+              Збільшення моделі у 100 разів призвело до неочікуваного
+              результату: у мережі з'явилися <em>емерджентні властивості</em>.
+              Без спеціального навчання вона почала перекладати мови, писати
+              простий HTML/Python-код і розв'язувати арифметичні приклади лише
+              за кількома підказками у запиті (Few-shot learning).
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-year">Листопад 2022 — Масова революція</div>
+            <h3>Запуск ChatGPT</h3>
+            <p style="margin-bottom: 0">
+              OpenAI адаптувала модель GPT-3.5 для діалогу за допомогою RLHF і
+              відкрила безкоштовний веб-чат. За 5 днів сервіс зібрав 1 мільйон
+              користувачів, а за 2 місяці — 100 мільйонів, ставши найшвидше
+              зростаючим споживчим застосунком в історії.
+            </p>
+          </div>
+
+          <div class="timeline-item">
+            <div class="timeline-year">
+              2023–2024 — Мультимодальність та Open Source
+            </div>
+            <h3>Моделі починають бачити, чути та запускатися локально</h3>
+            <p style="margin-bottom: 0">
+              З'являються GPT-4, Claude 3 та Gemini, які працюють не лише з
+              текстом, а й із зображеннями, PDF-документами та голосом. Водночас
+              Meta випускає сімейство <strong>Llama</strong>, запускаючи
+              бурхливий розвиток відкритих моделей, які можна розгорнути на
+              власному комп'ютері.
+            </p>
+          </div>
+
+          <div class="timeline-item" style="margin-bottom: 0">
+            <div class="timeline-year">
+              2025–2026 — Ера міркувань та AI-агентів
+            </div>
+            <h3>Reasoning-моделі та автономна робота</h3>
+            <p style="margin-bottom: 0">
+              Нове покоління моделей (OpenAI o1/o3, DeepSeek-R1, Claude 3.7)
+              навчилося витрачати додатковий час на внутрішній ланцюжок роздумів
+              перед тим, як дати відповідь. Моделі інтегруються в середовища
+              розробки (IDE) та браузери, перетворюючись із «чат-ботів» на
+              повноцінних цифрових агентів.
+            </p>
+          </div>
+        </div>
+
+        <div class="page-nav">
+          <button class="btn-nav" onclick="navigateTo('mechanics')">
+            ← Назад: Як це працює
+          </button>
+          <button class="btn-nav primary" onclick="navigateTo('usage')">
+            Далі: Застосування та межі →
+          </button>
+        </div>
+      </section>
+
+      <!-- PAGE 4: USAGE & LIMITATIONS -->
+      <section id="page-usage" class="page">
+        <div class="hero">
+          <span class="tag">Практика та обмеження</span>
+          <h1>Де застосовують <span>LLM</span> і де вони помиляються</h1>
+          <p class="subtitle">
+            Великі мовні моделі вже стали робочим інструментом у багатьох
+            професіях, проте мають критичні особливості, про які варто
+            пам'ятати.
+          </p>
+        </div>
+
+        <h2>Основні сфери застосування</h2>
+        <div class="grid-3">
+          <div class="card">
+            <h3>Розробка програмного забезпечення</h3>
+            <p style="margin-bottom: 0">
+              Генерація шаблонів коду, пошук помилок, написання юніт-тестів,
+              пояснення чужих репозиторіїв та переклад коду з однієї мови на
+              іншу.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Аналіз та резюмування текстів</h3>
+            <p style="margin-bottom: 0">
+              Виділення головних тез із довгих звітів, юридичних договорів,
+              наукових статей або розшифровок багатогодинних зустрічей за лічені
+              секунди.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Навчання та персональний тьюторинг</h3>
+            <p style="margin-bottom: 0">
+              Пояснення складних тем простими словами, створення тестів для
+              самоперевірки, перевірка есе та практика іноземних мов у форматі
+              живого діалогу.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Робота з контентом та копірайтинг</h3>
+            <p style="margin-bottom: 0">
+              Створення чернеток статей, листів, сценаріїв, адаптація стилю
+              тексту під різну аудиторію та локалізація матеріалів.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Підтримка клієнтів та пошук по базах</h3>
+            <p style="margin-bottom: 0">
+              Інтелектуальні асистенти (на базі RAG), які відповідають на
+              запитання користувачів виключно за внутрішньою документацією
+              компанії.
+            </p>
+          </div>
+          <div class="card">
+            <h3>Структурування неструктурованих даних</h3>
+            <p style="margin-bottom: 0">
+              Перетворення хаотичних нотаток, відгуків або сканів чеків у чисті
+              таблиці та валідний JSON для подальшої обробки програмами.
+            </p>
+          </div>
+        </div>
+
+        <h2>Головні обмеження та ризики</h2>
+        <div class="grid-2">
+          <div class="card" style="border-left: 3px solid var(--danger)">
+            <h3>1. Галюцинації (Hallucinations)</h3>
+            <p style="margin-bottom: 0">
+              Оскільки мета моделі — згенерувати правдоподібне продовження
+              тексту, вона може впевнено вигадати неіснуючий закон, фейкову
+              цитату чи неіснуючу бібліотеку в коді, якщо не знає точної
+              відповіді.
+            </p>
+          </div>
+          <div class="card" style="border-left: 3px solid var(--danger)">
+            <h3>2. Обмеженість знань у часі</h3>
+            <p style="margin-bottom: 0">
+              Базова модель знає лише те, що відбулося до дати завершення її
+              навчання (Knowledge Cutoff). Без підключення до інтернету вона не
+              знатиме актуальних новин чи свіжих версій фреймворків.
+            </p>
+          </div>
+          <div class="card" style="border-left: 3px solid var(--danger)">
+            <h3>3. Чутливість до формулювання</h3>
+            <p style="margin-bottom: 0">
+              Зміна кількох слів у запиті може кардинально змінити якість
+              результату. Нечіткий промпт зазвичай породжує поверхневу та
+              розмиту відповідь.
+            </p>
+          </div>
+          <div class="card" style="border-left: 3px solid var(--danger)">
+            <h3>4. Питання приватності та безпеки</h3>
+            <p style="margin-bottom: 0">
+              У публічні хмарні чати не можна завантажувати паролі, API-ключі,
+              персональні дані клієнтів чи комерційну таємницю. Для чутливих
+              даних використовують локальні моделі.
+            </p>
+          </div>
+        </div>
+
+        <div class="page-nav">
+          <button class="btn-nav" onclick="navigateTo('history')">
+            ← Назад: Історія розвитку
+          </button>
+          <button class="btn-nav primary" onclick="navigateTo('sources')">
+            Далі: Джерела інформації →
+          </button>
+        </div>
+      </section>
+
+      <!-- PAGE 5: SOURCES -->
+      <section id="page-sources" class="page">
+        <div class="hero">
+          <span class="tag">Джерела та ресурси</span>
+          <h1>Джерела <span>інформації</span></h1>
+        </div>
+
+        <div class="grid-2">
+          <a
+            class="source-card"
+            href="https://arxiv.org/abs/1706.03762"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div>
+              <div class="source-type">Наукова стаття · arXiv (2017)</div>
+              <h3>Attention Is All You Need</h3>
+              <p style="margin-bottom: 0; font-size: 0.92rem">
+                Фундаментальна праця Ашиша Васвані та колег (Google Brain), у
+                якій уперше запропоновано архітектуру Transformer.
+              </p>
+            </div>
+            <div class="source-link">arxiv.org/abs/1706.03762 ↗</div>
+          </a>
+
+          <a
+            class="source-card"
+            href="https://arxiv.org/abs/2005.14165"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div>
+              <div class="source-type">Наукова стаття · OpenAI (2020)</div>
+              <h3>Language Models are Few-Shot Learners (GPT-3)</h3>
+              <p style="margin-bottom: 0; font-size: 0.92rem">
+                Дослідження законів масштабування мовних моделей та появи
+                здібностей до навчання на кількох прикладах.
+              </p>
+            </div>
+            <div class="source-link">arxiv.org/abs/2005.14165 ↗</div>
+          </a>
+
+          <a
+            class="source-card"
+            href="https://arxiv.org/abs/2203.02155"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div>
+              <div class="source-type">Наукова стаття · OpenAI (2022)</div>
+              <h3>
+                Training language models to follow instructions with human
+                feedback
+              </h3>
+              <p style="margin-bottom: 0; font-size: 0.92rem">
+                Опис методу RLHF (InstructGPT), який дозволив перетворити базову
+                генеративну модель на корисного діалогового асистента.
+              </p>
+            </div>
+            <div class="source-link">arxiv.org/abs/2203.02155 ↗</div>
+          </a>
+
+          <a
+            class="source-card"
+            href="https://www.anthropic.com/research"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div>
+              <div class="source-type">Дослідження · Anthropic</div>
+              <h3>Anthropic AI Research & Constitutional AI</h3>
+              <p style="margin-bottom: 0; font-size: 0.92rem">
+                Публікації щодо інтерпретованості великих мовних моделей,
+                безпеки ШІ та механізмів вирівнювання поведінки.
+              </p>
+            </div>
+            <div class="source-link">anthropic.com/research ↗</div>
+          </a>
+
+          <a
+            class="source-card"
+            href="https://huggingface.co/learn/nlp-course"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div>
+              <div class="source-type">Освітній курс · Hugging Face</div>
+              <h3>Hugging Face NLP & LLM Course</h3>
+              <p style="margin-bottom: 0; font-size: 0.92rem">
+                Відкритий практичний посібник із роботи трансформерів,
+                токенізаторів, ембедінгів та донавчання моделей.
+              </p>
+            </div>
+            <div class="source-link">huggingface.co/learn/nlp-course ↗</div>
+          </a>
+
+          <a
+            class="source-card"
+            href="https://jalammar.github.io/illustrated-transformer/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <div>
+              <div class="source-type">Візуальний гайд · Jay Alammar</div>
+              <h3>The Illustrated Transformer</h3>
+              <p style="margin-bottom: 0; font-size: 0.92rem">
+                Наочне покрокове пояснення роботи матриць запитів, ключів і
+                значень (Query, Key, Value) у механізмі Self-Attention.
+              </p>
+            </div>
+            <div class="source-link">
+              jalammar.github.io/illustrated-transformer ↗
+            </div>
+          </a>
+        </div>
+
+        <div class="page-nav">
+          <button class="btn-nav" onclick="navigateTo('usage')">
+            ← Назад: Застосування та межі
+          </button>
+          <button class="btn-nav primary" onclick="navigateTo('overview')">
+            На початок ↑
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer with Author -->
+    <footer>
+      <div class="footer-container">
+        <div>LLM - великі мовні моделі</div>
+        <div class="author-badge">
+          Автор: <strong>Корсун Олександр</strong> <span>3КН-26б</span>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      function navigateTo(pageId) {
+        // Hide all pages
+        document.querySelectorAll(".page").forEach((page) => {
+          page.classList.remove("active");
+        });
+
+        // Show target page
+        const target = document.getElementById("page-" + pageId);
+        if (target) {
+          target.classList.add("active");
+        }
+
+        // Update active nav button
+        document.querySelectorAll(".nav-btn").forEach((btn) => {
+          btn.classList.toggle("active", btn.dataset.page === pageId);
+        });
+
+        // Scroll smoothly to top
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    </script>
+  </body>
+</html>
